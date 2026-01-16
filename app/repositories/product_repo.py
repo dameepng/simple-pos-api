@@ -20,3 +20,8 @@ class ProductRepository:
         db.add(p)
         db.flush()   # biar dapat id tanpa commit
         return p
+
+    def update_stock(self, db, product, new_stock: int):
+        product.stock = new_stock
+        db.flush()
+        return product

@@ -15,3 +15,6 @@ class ProductOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class StockUpdate(BaseModel):
+    stock: int = Field(ge=0)

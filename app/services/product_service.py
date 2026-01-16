@@ -14,3 +14,9 @@ class ProductService:
 
     def list_products(self, db: Session, limit: int, offset: int):
         return self.repo.list(db, limit=limit, offset=offset)
+
+    def update_stock(self, db, *, product_id: int, stock: int):
+        product = self.repo.get(db, product_id)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        return self.repo.update_stock(db, product, stock)

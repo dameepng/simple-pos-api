@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.schemas.order import OrderCreate, OrderOut, OrderSummaryOut
+from app.schemas.order import OrderCreate, OrderOut, OrderSummaryOut, PaginatedOrdersOut
 from app.services.order_service import OrderService
 
 router = APIRouter(prefix="/orders", tags=["orders"])
@@ -21,11 +21,17 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
         raise HTTPException(404, "Order not found")
     return order
 
-# ✅ LIST orders + pagination
-@router.get("", response_model=list[OrderSummaryOut])
+@router.get("", response_model=PaginatedOrdersOut)
 def list_orders(
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
 ):
-    return svc.orders.list(db, limit=limit, offset=offset)
+    total = svc.orders.count(db)
+    items = svc.orders.list(db, limit=limit, offset=offset)
+    return {
+        "items": items,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+    }

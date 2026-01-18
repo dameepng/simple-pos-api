@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from collections import defaultdict
 from app.repositories.order_repo import OrderRepository
 from app.repositories.product_repo import ProductRepository
 from app.models.order_item import OrderItem
@@ -11,11 +12,21 @@ class OrderService:
         self.products = ProductRepository()
 
     def create_order(self, db: Session, *, items: list[dict]):
+        # merge duplicate product_id
+        merged: dict[int, int] = defaultdict(int)
+        for it in items:
+            merged[int(it["product_id"])] += int(it["qty"])
+
+        normalized_items = [
+            {"product_id": pid, "qty": qty}
+            for pid, qty in merged.items()
+        ]
+
         order = self.orders.create(db)
         total = 0.0
 
-        for item in items:
-            product = self.products.get(db, item["product_id"])
+        for item in normalized_items:
+            product = self.products.get_for_update(db, item["product_id"])
             if not product:
                 raise HTTPException(404, f"Product {item['product_id']} not found")
 
@@ -26,7 +37,6 @@ class OrderService:
             line_total = unit_price * item["qty"]
             total += line_total
 
-            # kurangi stock
             product.stock -= item["qty"]
 
             db.add(OrderItem(
@@ -40,6 +50,5 @@ class OrderService:
         order.total = total
         db.flush()
 
-        # query ulang agar items pasti ke-load (eager)
         return self.orders.get(db, order.id)
 

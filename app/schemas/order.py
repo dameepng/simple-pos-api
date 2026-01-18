@@ -34,3 +34,9 @@ class OrderSummaryOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class PaginatedOrdersOut(BaseModel):
+    items: list[OrderSummaryOut]
+    total: int
+    limit: int
+    offset: int

@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.order import Order
@@ -26,3 +26,7 @@ class OrderRepository:
             .offset(offset)
         )
         return list(db.execute(stmt).scalars())
+
+    def count(self, db: Session) -> int:
+        stmt = select(func.count(Order.id))
+        return int(db.execute(stmt).scalar_one())

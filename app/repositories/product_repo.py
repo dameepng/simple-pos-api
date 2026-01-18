@@ -25,3 +25,16 @@ class ProductRepository:
         product.stock = new_stock
         db.flush()
         return product
+
+    def get_for_update(self, db, product_id: int) -> Product | None:
+        """
+        Row-lock product untuk transaksi (PostgreSQL).
+        SQLite fallback: behave like normal SELECT.
+        """
+        stmt = select(Product).where(Product.id == product_id)
+
+        # hanya aktifkan FOR UPDATE kalau DB mendukung (PostgreSQL)
+        if db.bind and db.bind.dialect.name in {"postgresql", "mysql"}:
+            stmt = stmt.with_for_update()
+
+        return db.execute(stmt).scalar_one_or_none()

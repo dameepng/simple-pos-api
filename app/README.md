@@ -53,3 +53,7 @@ List Product:
 ```bash
 curl "http://127.0.0.1:8000/products?limit=50&offset=0"
 ```
+
+## Notes
+- Stock update during order creation uses transaction-safe logic
+- Row-level locking is PostgreSQL-ready (SQLite fallback)

@@ -2,6 +2,8 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from collections import defaultdict
+from decimal import Decimal
+from app.core.money import quantize_money
 from app.repositories.order_repo import OrderRepository
 from app.repositories.product_repo import ProductRepository
 from app.models.order_item import OrderItem
@@ -23,7 +25,7 @@ class OrderService:
         ]
 
         order = self.orders.create(db)
-        total = 0.0
+        total = Decimal("0.00")
 
         for item in normalized_items:
             product = self.products.get_for_update(db, item["product_id"])
@@ -33,8 +35,8 @@ class OrderService:
             if product.stock < item["qty"]:
                 raise HTTPException(400, f"Insufficient stock for product {product.id}")
 
-            unit_price = float(product.price)
-            line_total = unit_price * item["qty"]
+            unit_price = product.price  # sudah Decimal dari DB
+            line_total = quantize_money(unit_price * item["qty"])
             total += line_total
 
             product.stock -= item["qty"]
@@ -47,8 +49,8 @@ class OrderService:
                 line_total=line_total,
             ))
 
-        order.total = total
+        order.total = quantize_money(total)
         db.flush()
-
         return self.orders.get(db, order.id)
+
 

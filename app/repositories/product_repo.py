@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from decimal import Decimal
 
 from app.models.product import Product
 
@@ -15,7 +16,7 @@ class ProductRepository:
         stmt = select(Product).order_by(Product.id.desc()).limit(limit).offset(offset)
         return list(db.execute(stmt).scalars())
 
-    def create(self, db: Session, *, sku: str, name: str, price: float, stock: int) -> Product:
+    def create(self, db: Session, *, sku: str, name: str, price: Decimal, stock: int) -> Product:
         p = Product(sku=sku, name=name, price=price, stock=stock)
         db.add(p)
         db.flush()   # biar dapat id tanpa commit

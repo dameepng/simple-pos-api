@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from decimal import Decimal
 
 class ProductCreate(BaseModel):
     sku: str = Field(min_length=1, max_length=64)
@@ -10,7 +11,7 @@ class ProductOut(BaseModel):
     id: int
     sku: str
     name: str
-    price: float
+    price: Decimal
     stock: int
 
     class Config:

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List
 from datetime import datetime
 
@@ -10,30 +10,24 @@ class OrderCreate(BaseModel):
     items: List[OrderItemCreate] = Field(min_length=1)
 
 class OrderItemOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     product_id: int
     qty: int
     unit_price: float
     line_total: float
 
-    class Config:
-        from_attributes = True
-
 class OrderOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     created_at: datetime
     total: float
     items: List[OrderItemOut]
 
-    class Config:
-        from_attributes = True
-
 class OrderSummaryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     created_at: datetime
     total: float
-
-    class Config:
-        from_attributes = True
 
 class PaginatedOrdersOut(BaseModel):
     items: list[OrderSummaryOut]

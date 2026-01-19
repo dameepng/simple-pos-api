@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
 
 class ProductCreate(BaseModel):
@@ -8,14 +8,12 @@ class ProductCreate(BaseModel):
     stock: int = Field(ge=0)
 
 class ProductOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     sku: str
     name: str
     price: Decimal
     stock: int
-
-    class Config:
-        from_attributes = True
 
 class StockUpdate(BaseModel):
     stock: int = Field(ge=0)

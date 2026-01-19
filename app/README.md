@@ -54,6 +54,16 @@ List Product:
 curl "http://127.0.0.1:8000/products?limit=50&offset=0"
 ```
 
-## Notes
+## Stock
 - Stock update during order creation uses transaction-safe logic
 - Row-level locking is PostgreSQL-ready (SQLite fallback)
+## Money Handling
+- Monetary values are stored and calculated using Decimal
+- API responses serialize money as string with 2 decimal places
+## Quality
+- Transaction-safe order processing
+- Decimal-based money handling
+- Automated tests with isolated DB
+- CI with GitHub Actions
+
+![CI](https://github.com/dameepng/simple-pos-api/actions/workflows/ci.yml/badge.svg)
